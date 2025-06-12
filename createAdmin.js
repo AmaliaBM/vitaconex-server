@@ -5,6 +5,7 @@ const bcrypt = require('bcryptjs');
 const User = require('./models/User.model');
 
 // Conecta a la base de datos
+//Este archivo me permite haber creado desde el código un usuario y así hacer las pruebas pertinentes en postman de una forma más fluida. Para la entrega del proyecto este archivo se puede borrar o ignorar. 
 mongoose.connect('mongodb://localhost:27017/data-vitaconex', {
   useNewUrlParser: true,
   useUnifiedTopology: true,
