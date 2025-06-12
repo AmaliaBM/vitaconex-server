@@ -14,7 +14,7 @@ const UserSchema = new Schema({
   datebirth: { type: Date, required: true },
   email: { type: String, required: true, unique: true, lowercase: true, trim: true },
   password: { type: String, required: true },
-  isActive: { type: Boolean, default: true },
+  isActive: { type: Boolean, default: false },
   assignedSanitarios: [{
     type: Schema.Types.ObjectId,
     ref: 'User',
