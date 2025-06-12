@@ -62,7 +62,7 @@ router.get('/users/:id', async (req, res) => {
 
 // POST /admin/users
 router.post('/users', async (req, res) => {
-  const { name, lastname, email, password, role, datebirth } = req.body;
+  const { name, lastname, email, password, role, datebirth, assignedSanitarios } = req.body;
   try {
     const hash = await bcrypt.hash(password, 10);
     const newUser = await User.create({
@@ -73,6 +73,7 @@ router.post('/users', async (req, res) => {
       role,
       datebirth,
       isActive: true,
+      assignedSanitarios
     });
     res.status(201).json(newUser);
   } catch (err) {
@@ -138,13 +139,13 @@ router.get('/appointments/:id', async (req, res) => {
 
 // POST /admin/appointments
 router.post('/appointments', async (req, res) => {
-  const { pacienteId, medicoId, datetime } = req.body;
+  const { pacienteId, medicoId, datetime, estado } = req.body;
   try {
     const nuevaCita = await Appoitment.create({
       pacienteId,
       medicoId,
       datetime,
-      estado: 'pendiente',
+      estado
     });
     res.status(201).json(nuevaCita);
   } catch (err) {

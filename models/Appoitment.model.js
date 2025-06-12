@@ -8,8 +8,8 @@ const AppointmentSchema = new Schema({
   datetime: { type: Date, required: true },
   estado: {
     type: String,
-    enum: ['pendiente', 'confirmado', 'cancelado'],
-    default: 'pendiente',
+    enum: [ 'confirmado', 'cancelado'],
+    default: 'confirmado',
     required: true,
   },
 }, { timestamps: true });

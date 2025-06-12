@@ -7,8 +7,10 @@ const JournalEntry = require('../models/JournalEntry.model');
 
 const { isAuthenticated, isSanitario } = require('../middlewares/auth.middleware');
 
+router.use(isAuthenticated, isSanitario);
+
 // CITAS
-router.get('/citas', async (req, res) => {
+router.get('/appointments', async (req, res) => {
   try {
     const start = new Date(); //--> define el inicio y fin del día completo (de medianoche a medianoche), no las horas laborales de los sanitarios.
     start.setHours(0, 0, 0, 0);
@@ -17,7 +19,7 @@ router.get('/citas', async (req, res) => {
 
     const citas = await Appoitment.find({
       medicoId: req.user.id,
-      datetime: { $gte: start, $lte: end }
+      datetime: { $gte: start, $lte: end } //gte:mayor o igual que fecha de inicio, lte:menor o igual q fecha final.
     }).populate('pacienteId', 'name lastname');
 
     res.json(citas);
@@ -27,7 +29,7 @@ router.get('/citas', async (req, res) => {
 });
 
 // PACIENTES
-router.get('/pacientes', async (req, res) => {
+router.get('/users', async (req, res) => {
   try {
     const pacientes = await User.find({ assignedSanitarios: req.user.id }, 'name lastname email');
     res.json(pacientes);
@@ -35,12 +37,23 @@ router.get('/pacientes', async (req, res) => {
     res.status(500).json({ msg: 'Error al obtener pacientes asignados' });
   }
 });
-router.get('/pacientes/:pacienteId', getPatientDetails);
+
+//PACIENTE EN CONCRETO
+
+router.get('/users/:userId',  async (req, res) => {
+  try {
+    const paciente = await User.findById(req.params.userId);
+    if (!paciente) return res.status(404).json({ msg: 'Usuario no encontrado' });
+    res.json(paciente);
+  } catch (err) {
+    res.status(500).json({ msg: 'Error al obtener usuario' });
+  }
+});
 
 // HISTORIAL MÉDICO
-router.get('/pacientes/:pacienteId/medical-records', async (req, res) => {
+router.get('/medical-records/:userId', async (req, res) => {
   try {
-    const paciente = await User.findById(req.params.pacienteId);
+    const paciente = await User.findById(req.params.userId);
     if (!paciente) return res.status(404).json({ msg: 'Paciente no encontrado' });
 
     const records = await MedicalRecord.find({ pacienteId: paciente._id });
@@ -50,13 +63,14 @@ router.get('/pacientes/:pacienteId/medical-records', async (req, res) => {
   }
 });
 
+
 // CREAR REGISTRO MÉDICO
-router.post('/pacientes/:pacienteId/medical-records', async (req, res) => {
-  const { pacienteId } = req.params;
+router.post('/medical-records/:userId', async (req, res) => {
+  const { userId } = req.params;
   const { contenido } = req.body;
   try {
     const newRecord = await MedicalRecord.create({
-      pacienteId,
+      pacienteId: userId,
       medicoId: req.user.id,
       contenido,
       fecha: new Date()
@@ -68,10 +82,10 @@ router.post('/pacientes/:pacienteId/medical-records', async (req, res) => {
 });
 
 // JOURNALING
-router.get('/pacientes/:pacienteId/journaling', async (req, res) => {
-  const { pacienteId } = req.params;
+router.get('/journaling/:userId', async (req, res) => {
+  const { userId } = req.params;
   try {
-    const journals = await JournalEntry.find({ pacienteId }).sort({ fecha: -1 });
+    const journals = await JournalEntry.find({ pacienteId: userId }).sort({ fecha: -1 });
     res.json(journals);
   } catch (err) {
     res.status(500).json({ msg: 'Error al obtener journaling' });

@@ -14,11 +14,11 @@ const UserSchema = new Schema({
   datebirth: { type: Date, required: true },
   email: { type: String, required: true, unique: true, lowercase: true, trim: true },
   password: { type: String, required: true },
-  isActive: { type: Boolean, default: false },
-  assignedSanitarios: [{
-    type: Schema.Types.ObjectId,
+  isActive: { type: Boolean, default: false }, //lo activa administrador, activa el perfil.
+  assignedSanitarios: {
+    type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
-  }],
+  },
 }, { timestamps: true });
 
 module.exports = model('User', UserSchema);
