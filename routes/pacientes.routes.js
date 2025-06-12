@@ -13,12 +13,13 @@ router.use(isAuthenticated, isPaciente);
 
 router.get('/journals', async (req, res) => {
   try {
-    const journals = await JournalEntry.find({ pacienteId: req.user.id }).sort({ fecha: -1 }); //ordena por fecha descendente
+    const journals = await JournalEntry.find({ pacienteId: req.user.id }).sort({ fecha: -1 }); //ordena por fecha descendentejo
     res.json(journals);
   } catch (err) {
     res.status(500).json({ msg: 'Error al obtener el journaling' });
   }
 });
+
 router.get('/journals/:id', async (req, res) => {
   try {
     const journal = await JournalEntry.findOne({ _id: req.params.id, pacienteId: req.user.id });
