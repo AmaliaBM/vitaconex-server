@@ -11,9 +11,9 @@ router.post("/signup", async (req, res, next) => {
   //deberia recibir la data del usuario
 
   console.log(req.body);
-  const { name, email, password } = req.body;
+  const { name, lastname, email, password, datebirth } = req.body;
   //1. que todos los campos existan y tengas valores
-  if (!name || !email || !password) {
+  if (!name || !lastname || !email || !datebirth || !password) {
     res.status(400).json({
       errorMessage:
         "Todos los campos son obligatorios (username, email, password)",
@@ -55,9 +55,10 @@ router.post("/signup", async (req, res, next) => {
       datebirth,
       email,
       password: hashPassword,
+      role: "paciente",
     });
 
-    res.sendStatus(201);
+    res.sendStatus(201)({ msg:"Tu registro fue enviado. Administración debe aprobar tu cuenta antes de poder acceder."});
   } catch (error) {
     console.log(error);
   }
