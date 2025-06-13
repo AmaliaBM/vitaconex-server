@@ -86,12 +86,12 @@ router.post('/login', async (req, res) => {
     res.status(500).json({ msg: 'Error en login'});
   }
 });
-router.post('/register', async (req, res) => {
+router.post('/signup', async (req, res) => {
   const { name, lastname, email, password, role } = req.body;
   try {
     const hash = await bcrypt.hash(password, 10);
-    const newUser = await User.create({ name, lastname, email, password: hash, role });
-    res.status(201).json(newUser);
+    const newUser = await User.create({ name, lastname, email, password: hash, role, isActive: false });
+    res.status(201).json(({ msg: 'Usuario registrado. Pendiente de aprobación por administración.' }));
   } catch (err) {
     res.status(400).json({ msg: 'Error al registrar usuario' });
   }
