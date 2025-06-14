@@ -62,38 +62,41 @@ router.post("/login", async (req, res) => {
   try {
     const user = await User.findOne({ email });
 
-    if (!user)
-      return res.status(404).json({ msg: "Usuario no encontrado" });
+    if (!user) {
+      return res.status(401).json({ msg: "Usuario no encontrado" });
+    }
 
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch)
-      return res.status(401).json({ msg: "Credenciales incorrectas" });
+    const passwordCorrect = await bcrypt.compare(password, user.password);
+    if (!passwordCorrect) {
+      return res.status(401).json({ msg: "Contraseña incorrecta" });
+    }
 
-    // Crear el token
-    const token = jwt.sign(
-      { id: user._id, role: user.role },
-      process.env.JWT_SECRET,
-      { expiresIn: "1d" }
-    );
+    const payload = {
+      _id: user._id,
+      email: user.email,
+      name: user.name,
+      role: user.role,
+    };
 
-    // Enviar el token con el nombre esperado por el frontend
-    res.json({
-      authToken: token,
-      user: {
-        id: user._id,
-        name: user.name,
-        role: user.role,
-      },
+    const token = jwt.sign(payload, process.env.JWT_SECRET, {
+      expiresIn: "2d",
     });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ msg: "Error en login" });
+
+    res.status(200).json({
+      authToken: token,
+      user: payload, // Enviamos toda la info necesaria
+    });
+
+  } catch (error) {
+    console.error("Error en login:", error);
+    res.status(500).json({ msg: "Error del servidor" });
   }
 });
 
 // VERIFY - para verificar token en frontend
+
 router.get("/verify", verifyToken, (req, res) => {
-  res.json({ payload: req.payload });
+  res.json({ payload: req.user }); // ← Corrige aquí (antes decía req.payload)
 });
 
 module.exports = router;
