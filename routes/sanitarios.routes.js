@@ -10,23 +10,19 @@ const { isAuthenticated, isSanitario } = require('../middlewares/auth.middleware
 router.use(isAuthenticated, isSanitario);
 
 // CITAS
-router.get('/appointments', async (req, res) => {
+router.get("/appointments", isAuthenticated, async (req, res) => {
   try {
-    const start = new Date(); //--> define el inicio y fin del día completo (de medianoche a medianoche), no las horas laborales de los sanitarios.
-    start.setHours(0, 0, 0, 0);
-    const end = new Date();
-    end.setHours(23, 59, 59, 999);
+    const userId = req.user._id;
 
-    const citas = await Appoitment.find({
-      medicoId: req.user._id,
-      datetime: { $gte: start, $lte: end } //gte:mayor o igual que fecha de inicio, lte:menor o igual q fecha final.
-    }).populate('pacienteId', 'name lastname');
+    const appointments = await Appointment.find({ medicoId: userId })
+      .populate("pacienteId", "name lastname");
 
-    res.json(citas);
+    res.json(appointments);
   } catch (err) {
-    res.status(500).json({ msg: 'Error al obtener citas del día' });
+    res.status(500).json({ message: "Error al obtener citas" });
   }
 });
+
 
 // PACIENTES
 router.get('/users', async (req, res) => {

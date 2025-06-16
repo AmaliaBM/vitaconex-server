@@ -110,19 +110,15 @@ router.delete('/users/:id',async (req, res) => {
 // ==== CITAS ====
 
 // GET /admin/appointments?userId=xyz
-router.get('/appointments', async (req, res) => {
+router.get("/appointments", isAuthenticated, async (req, res) => {
   try {
-    const { userId } = req.query;
-    const filter = {};
+    const appointments = await Appointment.find()
+      .populate("pacienteId", "name lastname")
+      .populate("medicoId", "name lastname");
 
-    if (userId) {
-      filter.$or = [{ pacienteId: userId }, { medicoId: userId }];
-    }
-
-    const citas = await Appoitment.find(filter).populate('pacienteId', 'name lastname').populate('medicoId', 'name lastname');
-    res.json(citas);
+    res.json(appointments);
   } catch (err) {
-    res.status(500).json({ msg: 'Error al obtener citas' });
+    res.status(500).json({ message: "Error al obtener citas" });
   }
 });
 

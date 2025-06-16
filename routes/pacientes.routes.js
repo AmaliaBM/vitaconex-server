@@ -68,14 +68,20 @@ router.delete('/journals/:id', async (req, res) => {
 });
 
 
-router.get('/appointments', async (req, res) => {
+router.get("/appointments", isAuthenticated, async (req, res) => {
   try {
-    const citas = await Appoitment.find({ pacienteId: req.user._id }).populate('medicoId', 'name lastname');
-    res.json(citas);
+    const userId = req.user._id;
+
+    const appointments = await Appointment.find({ pacienteId: userId })
+      .populate("medicoId", "name lastname");
+
+    res.json(appointments);
   } catch (err) {
-    res.status(500).json({ msg: 'Error al obtener citas' });
+    res.status(500).json({ message: "Error al obtener citas" });
   }
 });
+
+
 router.get('/medical-records', async (req, res) => {
   try {
     const records = await MedicalRecord.find({ pacienteId: req.user._id }).populate('medicoId', 'name lastname');
