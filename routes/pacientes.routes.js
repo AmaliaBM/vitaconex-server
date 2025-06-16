@@ -6,7 +6,6 @@ const JournalEntry = require('../models/JournalEntry.model');
 const Appointment = require('../models/Appoitment.model')
 const MedicalRecord = require('../models/MedicalRecord.model');
 
-
 router.use(isAuthenticated, isPaciente);
 
 
@@ -82,12 +81,16 @@ router.get("/appointments", isAuthenticated, async (req, res) => {
 });
 
 
-router.get('/medical-records', async (req, res) => {
+
+router.get('/medical-records', isAuthenticated, isPaciente, async (req, res) => {
   try {
-    const records = await MedicalRecord.find({ pacienteId: req.user._id }).populate('medicoId', 'name lastname');
+    const patientId = req.user._id;  
+    const records = await MedicalRecord.find({ pacienteId: patientId })
+      .populate('medicoId', 'name lastname');  // Populamos solo name y lastname del médico
+
     res.json(records);
-  } catch (err) {
-    res.status(500).json({ msg: 'Error al obtener historial médico' });
+  } catch (error) {
+    res.status(500).json({ msg: 'Error al obtener los informes médicos' });
   }
 });
 
