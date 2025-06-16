@@ -18,7 +18,7 @@ router.get('/appointments', async (req, res) => {
     end.setHours(23, 59, 59, 999);
 
     const citas = await Appoitment.find({
-      medicoId: req.user.id,
+      medicoId: req.user._id,
       datetime: { $gte: start, $lte: end } //gte:mayor o igual que fecha de inicio, lte:menor o igual q fecha final.
     }).populate('pacienteId', 'name lastname');
 
@@ -31,7 +31,7 @@ router.get('/appointments', async (req, res) => {
 // PACIENTES
 router.get('/users', async (req, res) => {
   try {
-    const pacientes = await User.find({ assignedSanitarios: req.user.id }, 'name lastname email');
+    const pacientes = await User.find({ assignedSanitarios: req.user._id }, 'name lastname email');
     res.json(pacientes);
   } catch (err) {
     res.status(500).json({ msg: 'Error al obtener pacientes asignados' });
@@ -71,7 +71,7 @@ router.post('/medical-records/:userId', async (req, res) => {
   try {
     const newRecord = await MedicalRecord.create({
       pacienteId: userId,
-      medicoId: req.user.id,
+      medicoId: req.user._id,
       contenido,
       fecha: new Date()
     });

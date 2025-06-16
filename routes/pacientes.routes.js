@@ -13,7 +13,7 @@ router.use(isAuthenticated, isPaciente);
 
 router.get('/journals', async (req, res) => {
   try {
-    const journals = await JournalEntry.find({ pacienteId: req.user.id }).sort({ fecha: -1 }); //ordena por fecha descendentejo
+    const journals = await JournalEntry.find({ pacienteId: req.user._id }).sort({ fecha: -1 }); //ordena por fecha descendentejo
     res.json(journals);
   } catch (err) {
     res.status(500).json({ msg: 'Error al obtener el journaling' });
@@ -22,7 +22,7 @@ router.get('/journals', async (req, res) => {
 
 router.get('/journals/:id', async (req, res) => {
   try {
-    const journal = await JournalEntry.findOne({ _id: req.params.id, pacienteId: req.user.id });
+    const journal = await JournalEntry.findOne({ _id: req.params.id, pacienteId: req.user._id });
     if (!journal) return res.status(404).json({ msg: 'Entrada no encontrada' });
     res.json(journal);
   } catch (err) {
@@ -33,7 +33,7 @@ router.post('/journals', async (req, res) => {
   const { estadoAnimo, diario } = req.body;
   try {
     const newEntry = await JournalEntry.create({
-      pacienteId: req.user.id,
+      pacienteId: req.user._id,
       estadoAnimo,
       diario,
       fecha: new Date(),
@@ -46,7 +46,7 @@ router.post('/journals', async (req, res) => {
 router.put('/journals/:id', async (req, res) => {
   try {
     const updated = await JournalEntry.findOneAndUpdate(
-      { _id: req.params.id, pacienteId: req.user.id },
+      { _id: req.params.id, pacienteId: req.user._id },
       req.body,
       { new: true }
     );
@@ -59,7 +59,7 @@ router.put('/journals/:id', async (req, res) => {
 
 router.delete('/journals/:id', async (req, res) => {
   try {
-    const deleted = await JournalEntry.findOneAndDelete({ _id: req.params.id, pacienteId: req.user.id });
+    const deleted = await JournalEntry.findOneAndDelete({ _id: req.params.id, pacienteId: req.user._id });
     if (!deleted) return res.status(404).json({ msg: 'Entrada no encontrada' });
     res.json({ msg: 'Eliminado correctamente' });
   } catch (err) {
@@ -70,7 +70,7 @@ router.delete('/journals/:id', async (req, res) => {
 
 router.get('/appointments', async (req, res) => {
   try {
-    const citas = await Appoitment.find({ pacienteId: req.user.id }).populate('medicoId', 'name lastname');
+    const citas = await Appoitment.find({ pacienteId: req.user._id }).populate('medicoId', 'name lastname');
     res.json(citas);
   } catch (err) {
     res.status(500).json({ msg: 'Error al obtener citas' });
@@ -78,7 +78,7 @@ router.get('/appointments', async (req, res) => {
 });
 router.get('/medical-records', async (req, res) => {
   try {
-    const records = await MedicalRecord.find({ pacienteId: req.user.id }).populate('medicoId', 'name lastname');
+    const records = await MedicalRecord.find({ pacienteId: req.user._id }).populate('medicoId', 'name lastname');
     res.json(records);
   } catch (err) {
     res.status(500).json({ msg: 'Error al obtener historial médico' });
