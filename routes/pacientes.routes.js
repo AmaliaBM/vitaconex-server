@@ -3,7 +3,7 @@ const express = require('express');
 const router = express.Router();
 const { isAuthenticated, isPaciente } = require('../middlewares/auth.middleware');
 const JournalEntry = require('../models/JournalEntry.model');
-const Appoitment = require('../models/Appoitment.model');
+const Appointment = require('../models/Appoitment.model')
 const MedicalRecord = require('../models/MedicalRecord.model');
 
 

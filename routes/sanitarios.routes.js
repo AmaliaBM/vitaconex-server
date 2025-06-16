@@ -1,11 +1,12 @@
 const express = require('express');
 const router = express.Router();
-const Appoitment = require('../models/Appoitment.model');
+const Appointment = require('../models/Appoitment.model')
 const User = require('../models/User.model');
 const MedicalRecord = require('../models/MedicalRecord.model');
 const JournalEntry = require('../models/JournalEntry.model');
 
 const { isAuthenticated, isSanitario } = require('../middlewares/auth.middleware');
+
 
 router.use(isAuthenticated, isSanitario);
 
