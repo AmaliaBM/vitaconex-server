@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
 const User = require('../models/User.model');
-const Appoitment = require('../models/Appoitment.model');
+const Appointment = require('../models/Appoitment.model')
 
 
 
@@ -107,37 +107,38 @@ router.delete('/users/:id',async (req, res) => {
   }
 });
 
-// ==== CITAS ====
-
-// GET /admin/appointments?userId=xyz
+// GET citas
 router.get("/appointments", isAuthenticated, async (req, res) => {
   try {
     const appointments = await Appointment.find()
       .populate("pacienteId", "name lastname")
       .populate("medicoId", "name lastname");
-
     res.json(appointments);
   } catch (err) {
+    console.error(err);
     res.status(500).json({ message: "Error al obtener citas" });
   }
 });
 
-// GET /admin/appointments/:id
-router.get('/appointments/:id', async (req, res) => {
+// GET cita por id
+router.get('/appointments/:id', isAuthenticated, async (req, res) => {
   try {
-    const cita = await Appoitment.findById(req.params.id).populate('pacienteId', 'name lastname').populate('medicoId', 'name lastname');
+    const cita = await Appointment.findById(req.params.id)
+      .populate('pacienteId', 'name lastname')
+      .populate('medicoId', 'name lastname');
     if (!cita) return res.status(404).json({ msg: 'Cita no encontrada' });
     res.json(cita);
   } catch (err) {
+    console.error(err);
     res.status(500).json({ msg: 'Error al obtener cita' });
   }
 });
 
-// POST /admin/appointments
-router.post('/appointments', async (req, res) => {
+// POST crear cita
+router.post('/appointments', isAuthenticated, async (req, res) => {
   const { pacienteId, medicoId, datetime, estado } = req.body;
   try {
-    const nuevaCita = await Appoitment.create({
+    const nuevaCita = await Appointment.create({
       pacienteId,
       medicoId,
       datetime,
@@ -145,28 +146,31 @@ router.post('/appointments', async (req, res) => {
     });
     res.status(201).json(nuevaCita);
   } catch (err) {
+    console.error(err);
     res.status(400).json({ msg: 'Error al crear cita' });
   }
 });
 
-// PUT /admin/appointments/:id
-router.put('/appointments/:id', async (req, res) => {
+// PUT actualizar cita
+router.put('/appointments/:id', isAuthenticated, async (req, res) => {
   try {
-    const updated = await Appoitment.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    const updated = await Appointment.findByIdAndUpdate(req.params.id, req.body, { new: true });
     if (!updated) return res.status(404).json({ msg: 'Cita no encontrada' });
     res.json(updated);
   } catch (err) {
+    console.error(err);
     res.status(400).json({ msg: 'Error al actualizar cita' });
   }
 });
 
-// DELETE /admin/appointments/:id
-router.delete('/appointments/:id', async (req, res) => {
+// DELETE cita
+router.delete('/appointments/:id', isAuthenticated, async (req, res) => {
   try {
-    const deleted = await Appoitment.findByIdAndDelete(req.params.id);
+    const deleted = await Appointment.findByIdAndDelete(req.params.id);
     if (!deleted) return res.status(404).json({ msg: 'Cita no encontrada' });
     res.json({ msg: 'Cita eliminada correctamente' });
   } catch (err) {
+    console.error(err);
     res.status(500).json({ msg: 'Error al eliminar cita' });
   }
 });
