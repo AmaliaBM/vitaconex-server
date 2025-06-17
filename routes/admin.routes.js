@@ -62,7 +62,12 @@ router.get('/users/:id', async (req, res) => {
 
 // POST /admin/users
 router.post('/users', async (req, res) => {
-  const { name, lastname, email, password, role, datebirth, assignedSanitarios } = req.body;
+  let { name, lastname, email, password, role, datebirth, assignedSanitarios } = req.body;
+    // Convertir assignedSanitarios a null si viene vacío o no válido
+  if (!assignedSanitarios) {
+    assignedSanitarios = null;
+  }
+
   try {
     const hash = await bcrypt.hash(password, 10);
     const newUser = await User.create({
@@ -73,11 +78,12 @@ router.post('/users', async (req, res) => {
       role,
       datebirth,
       isActive: true,
-      assignedSanitarios
+      assignedSanitarios,
     });
     res.status(201).json(newUser);
   } catch (err) {
-    res.status(400).json({ msg: 'Error al crear usuario' });
+    console.error('Error al crear usuario:', err);
+    res.status(400).json({ msg: 'Error al crear usuario', error: err.message });
   }
 });
 
