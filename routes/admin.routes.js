@@ -96,13 +96,26 @@ router.put('/users/:id', async (req, res) => {
   }
 });
 
-// DELETE /admin/users/:id
-router.delete('/users/:id',async (req, res) => {
+// DELETE /admin/users/:id/secure
+router.delete('/users/:id/secure', async (req, res) => {
+  const { password } = req.body;
+  const userMakingRequest = req.user; // viene del middleware isAuthenticated
+
   try {
+    const adminUser = await User.findById(userMakingRequest._id);
+    if (!adminUser) return res.status(401).json({ msg: 'Admin no encontrado' });
+
+    const validPassword = await bcrypt.compare(password, adminUser.password);
+    if (!validPassword) {
+      return res.status(401).json({ msg: 'Contraseña incorrecta' });
+    }
+
     const deleted = await User.findByIdAndDelete(req.params.id);
     if (!deleted) return res.status(404).json({ msg: 'Usuario no encontrado' });
+
     res.json({ msg: 'Usuario eliminado correctamente' });
   } catch (err) {
+    console.error(err);
     res.status(500).json({ msg: 'Error al eliminar usuario' });
   }
 });
