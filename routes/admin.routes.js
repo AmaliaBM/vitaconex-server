@@ -62,28 +62,35 @@ router.get('/users/:id', async (req, res) => {
 
 // POST /admin/users
 router.post('/users', async (req, res) => {
-  let { name, lastname, email, password, role, datebirth, assignedSanitarios } = req.body;
-    // Convertir assignedSanitarios a null si viene vacío o no válido
-  if (!assignedSanitarios) {
-    assignedSanitarios = null;
-  }
-
   try {
-    const hash = await bcrypt.hash(password, 10);
-    const newUser = await User.create({
+    let { name, lastname, email, password, role, datebirth, assignedSanitarios } = req.body;
+
+    if (!assignedSanitarios) {
+      assignedSanitarios = null;
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const newUser = new User({
       name,
       lastname,
       email,
-      password: hash,
+      password: hashedPassword,
       role,
       datebirth,
-      isActive: true,
       assignedSanitarios,
     });
-    res.status(201).json(newUser);
+
+    await newUser.save();
+
+    // Para no enviar la contraseña en la respuesta:
+    const userResponse = newUser.toObject();
+    delete userResponse.password;
+
+    res.status(201).json(userResponse);
   } catch (err) {
-    console.error('Error al crear usuario:', err);
-    res.status(400).json({ msg: 'Error al crear usuario', error: err.message });
+    console.error(err);
+    res.status(400).json({ msg: 'Error al crear usuario' });
   }
 });
 
@@ -91,13 +98,24 @@ router.post('/users', async (req, res) => {
 router.put('/users/:id', async (req, res) => {
   try {
     const updates = { ...req.body };
+
+    if (updates.assignedSanitarios === "") {
+      updates.assignedSanitarios = null;
+    }
+
     if (updates.password) {
       updates.password = await bcrypt.hash(updates.password, 10);
     }
+
     const updatedUser = await User.findByIdAndUpdate(req.params.id, updates, { new: true }).select('-password');
-    if (!updatedUser) return res.status(404).json({ msg: 'Usuario no encontrado' });
+
+    if (!updatedUser) {
+      return res.status(404).json({ msg: 'Usuario no encontrado' });
+    }
+
     res.json(updatedUser);
   } catch (err) {
+    console.error(err);
     res.status(400).json({ msg: 'Error al actualizar usuario' });
   }
 });
