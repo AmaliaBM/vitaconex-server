@@ -28,7 +28,7 @@ router.get("/appointments", isAuthenticated, async (req, res) => {
 // PACIENTES
 router.get('/users', async (req, res) => {
   try {
-    const pacientes = await User.find({ assignedSanitarios: req.user._id }, 'name lastname email');
+    const pacientes = await User.find({ assignedSanitarios: req.user._id }, 'name lastname email isActive')
     res.json(pacientes);
   } catch (err) {
     res.status(500).json({ msg: 'Error al obtener pacientes asignados' });
