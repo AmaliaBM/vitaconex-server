@@ -1,3 +1,6 @@
+/* rutas protegidas para sanitarios (médicos, psicólogos, etc.) usando Express.js y accediendo a diferentes modelos (citas, pacientes, historiales médicos y journaling).*/
+
+/*importa Express y crea un enrutador (router) para definir rutas específicas que luego se montarán en la app principal.*/
 const express = require('express');
 const router = express.Router();
 const Appointment = require('../models/Appoitment.model')
@@ -10,7 +13,7 @@ const { isAuthenticated, isSanitario } = require('../middlewares/auth.middleware
 
 router.use(isAuthenticated, isSanitario);
 
-// CITAS
+// CITAS: todas las rutas definidas después estarán protegidas por los middlewares isAuthenticated, isSanitario
 router.get("/appointments", isAuthenticated, async (req, res) => {
   try {
     const userId = req.user._id;

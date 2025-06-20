@@ -1,4 +1,6 @@
+/* rutas protegidas para pacientes usando Express.js y accediendo a diferentes modelos*/
 
+/*importa Express y crea un enrutador (router) para definir rutas específicas que luego se montarán en la app principal.*/
 const express = require('express');
 const router = express.Router();
 const { isAuthenticated, isPaciente } = require('../middlewares/auth.middleware');
@@ -12,7 +14,7 @@ router.use(isAuthenticated, isPaciente);
 
 router.get('/journals', async (req, res) => {
   try {
-    const journals = await JournalEntry.find({ pacienteId: req.user._id }).sort({ fecha: -1 }); //ordena por fecha descendentejo
+    const journals = await JournalEntry.find({ pacienteId: req.user._id }).sort({ fecha: -1 }); //ordena por fecha descendente
     res.json(journals);
   } catch (err) {
     res.status(500).json({ msg: 'Error al obtener el journaling' });
